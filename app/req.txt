@@ -1,0 +1,5 @@
+Flask
+yfinance
+tensorflow
+keras
+pandas

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Forecast</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        .spinner {
+            display: none;
+            margin: 20px auto;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .progress {
+            margin: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cryptocurrency Price Forecast</h1>
+        <form id="forecastForm">
+            <label for="target_date">Select Target Date:</label>
+            <input type="date" id="target_date" name="target_date" required>
+            <button type="submit">Forecast Prices</button>
+        </form>
+
+        <div class="spinner" id="spinner"></div>
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById("forecastForm");
+        const spinner = document.getElementById("spinner");
+        const progress = document.getElementById("progress");
+        const socket = io();
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            spinner.style.display = "block";
+            progress.textContent = "Training started...";
+            const formData = new FormData(form);
+            fetch("/", {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                spinner.style.display = "none";
+                progress.textContent = "Training complete!";
+                document.body.insertAdjacentHTML("beforeend", data);
+            });
+        });
+
+        socket.on("training_update", (data) => {
+            progress.textContent = `Epoch: ${data.epoch}, Loss: ${data.loss}`;
+        });
+    </script>
+</body>
+</html>
